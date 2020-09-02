@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>RemoteSwitch</title>
+    <style>
+        select {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .target {
+            display: block;
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            background-color: aqua;
+            top: 200px;
+            left: 250px;
+        }
+
+        .cursol {
+            display: block;
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            background-color: red;
+            top: 0px;
+            left: 0px;
+        }
+    </style>
+    <script>
+        buttons = [
+            'B',
+            'A',
+            'Y',
+            'X',
+            'L',
+            'R',
+            'ZL',
+            'ZR',
+            '-',
+            '+',
+            'L-Stick',
+            'R-Stick',
+            'Up',
+            'Down',
+            'Left',
+            'Right',
+            'Home',
+            'Capture'
+        ];
+        axes = [
+            'L-Horizon',
+            'L-Vertical',
+            'R-Horizon',
+            'R-Vertical'
+        ];
+
+        let index = 0;
+        let btn_map = [];
+        let ax_map = [];
+        let timer = false;
+        let target = null;
+        let cursol = null;
+
+        function getState() {
+            let bs = navigator.getGamepads()[index].buttons;
+            for (var i in btn_map) {
+                if (bs[i].pressed) {
+                    btn_map[i].state.innerText = 'on';
+                    btn_map[i].state.style.backgroundColor = 'yellowgreen';
+                } else {
+                    btn_map[i].state.innerText = 'off';
+                    btn_map[i].state.style.backgroundColor = '';
+                }
+            }
+            let ax = navigator.getGamepads()[index].axes;
+            for (var i in ax_map) {
+                ax_map[i].state.value = ax[i] * (ax_map[i].rev.checked ? -1 : 1);
+            }
+            for (var a of ax_map) {
+                if (a.sel.value.includes('Horizon')) cursol.style.left = cursol.offsetLeft + a.state.value * 10 + 'px';
+                if (a.sel.value.includes('Vertical')) cursol.style.top = cursol.offsetTop + a.state.value * 10 + 'px';
+                if (cursol.offsetLeft < 0) cursol.style.left = 0;
+                if (cursol.offsetLeft > window.innerWidth) cursol.style.left = window.innerWidth + 'px';
+                if (cursol.offsetTop < 0) cursol.style.top = 0;
+                if (cursol.offsetTop > window.innerHeight) cursol.style.top = window.innerHeight + 'px';
+            }
+            for (var b of btn_map) {
+                if (b.sel.value == 'A' && b.state.innerText == 'on') {
+                    if (target.offsetLeft < cursol.offsetLeft &&
+                        cursol.offsetLeft + 30 < target.offsetLeft + 100 &&
+                        target.offsetTop < cursol.offsetTop &&
+                        cursol.offsetTop + 30 < target.offsetTop + 100) {
+                        clearInterval(timer);
+                        timer = false;
+                        mapping.innerHTML = '';
+                        startSession();
+                        break;
+                    }
+                }
+            }
+        }
+
+        function changeGamepad(idx) {
+            pre_connect && pre_connect.remove();
+            pre_connect = false;
+            mapping.innerHTML = '選択中のコントローラー<select id="game_pads"></select><h1>3. マッピングを設定してください</h1><h3>ボタンマッピング</h3>';
+            for (let p of navigator.getGamepads()) {
+                if (p) game_pads.innerHTML += '<option>' + p.id + '</option>';
+            }
+            game_pads.onchange = function () {
+                changeGamepad(game_pads.selectedIndex);
+            }
+            game_pads.selectedIndex = idx;
+            target && target.remove();
+            target = document.createElement('div');
+            target.className = 'target';
+            target.innerHTML = '4. カーソルを合わせてAを押してください';
+            mapping.append(target);
+            cursol && cursol.remove();
+            cursol = document.createElement('div');
+            cursol.className = 'cursol';
+            mapping.append(cursol);
+
+            btn_map = [];
+            G = navigator.getGamepads()[idx];
+            let btns = G.buttons;
+            if (G.id.includes('Joy-Con L+R')) {
+                btns = buttons;
+            }
+
+            function makeButton(name, idx) {
+                var div = document.createElement('div');
+                div.innerText = name;
+                var sel = document.createElement('select');
+                for (var b of buttons) {
+                    var opt = document.createElement('option');
+                    opt.innerText = b;
+                    sel.append(opt);
+                }
+                var opt = document.createElement('option');
+                opt.innerText = 'None';
+                sel.append(opt);
+
+                sel.selectedIndex = idx;
+                if (idx >= buttons.length) sel.selectedIndex = buttons.length;
+                div.append(sel);
+
+                var state = document.createElement('span');
+                state.innerText = 'off';
+                div.append(state);
+                return {idx, sel, state, div};
+            }
+
+            function makeAxis(name, idx) {
+                var div = document.createElement('div');
+                div.innerText = name;
+                var sel = document.createElement('select');
+                for (var b of axes) {
+                    var opt = document.createElement('option');
+                    opt.innerText = b;
+                    sel.append(opt);
+                }
+                var opt = document.createElement('option');
+                opt.innerText = 'Up-Down';
+                sel.append(opt);
+                var opt = document.createElement('option');
+                opt.innerText = 'Left-Right';
+                sel.append(opt);
+                var opt = document.createElement('option');
+                opt.innerText = 'None';
+                sel.append(opt);
+
+                sel.selectedIndex = idx;
+                if (idx >= axes.length) sel.selectedIndex = axes.length + 2;
+                div.append(sel);
+
+                var state = document.createElement('input');
+                state.type = 'range';
+                state.min = -1;
+                state.max = 1;
+                state.step = 0.01;
+                div.append(state);
+                div.append("反転")
+                var rev = document.createElement('input');
+                rev.type = 'checkbox';
+                div.append(rev);
+                return {idx, sel, state, rev, div};
+            }
+
+            for (var i in btns) {
+                let btn = makeButton('button_' + i, i);
+                btn_map.push(btn);
+                mapping.append(btn.div);
+            }
+            var h3 = document.createElement('h3');
+            h3.id = 'button_end';
+            h3.innerText = 'スティックの設定';
+            mapping.append(h3);
+            ax_map = [];
+            for (var i in G.axes) {
+                let ax = makeAxis('axis_' + i, i);
+                ax_map.push(ax);
+                mapping.append(ax.div);
+            }
+            timer && clearInterval(timer);
+            timer = setInterval(getState, 15);
+            index = G.index;
+            save = localStorage.getItem(G.id);
+            if (save) {
+                for (let i in btn_map) {
+                    btn_map[i].sel.selectedIndex = parseInt(save[i], '32');
+                }
+                for (let i in ax_map) {
+                    ax_map[i].sel.selectedIndex = parseInt(save[i * 1 + btn_map.length], '32');
+                }
+                for (let i in ax_map) {
+                    ax_map[i].rev.checked = save[i * 1 + btn_map.length + ax_map.length] == 1;
+                }
+            }
+
+        }
+
+        window.addEventListener("gamepadconnected", e => {
+            changeGamepad(e.gamepad.index);
+        });
+
+
+        let btn_states = [];
+        let axis_states = [];
+        let ws = null;
+
+        function sendState() {
+            conn_state.innerHTML = ['接続中', '通信中', '切断中', '切断'][ws.readyState];
+            buffer.innerHTML = ws.bufferedAmount;
+            if (ws.readyState == 3 || ws.bufferedAmount) {
+                return;
+            }
+            let data = [];
+            let btn = 0;
+            let pad_btn = navigator.getGamepads()[index].buttons;
+            let ax = navigator.getGamepads()[index].axes;
+            for (var s of btn_states) {
+                btn <<= 1;
+                if (s === false) continue;
+                if (typeof (s) == 'number') {
+                    btn |= pad_btn[s].pressed ? 1 : 0;
+                } else {
+                    btn |= ax[s.idx] * s.dir > 0.5 ? 1 : 0;
+                }
+            }
+            data.push(btn);
+            for (var s of axis_states) {
+                if (s === false) {
+                    data.push(0);
+                } else {
+                    data.push(Math.round(ax[s.idx] * 100 * s.dir));
+                }
+            }
+            ws.send(data.join(','));
+        }
+
+
+        function startSession() {
+            mapping.innerHTML += '<h1>コントローラー</h1>';
+            mapping.innerHTML += G.id;
+            mapping.innerHTML += '<h1>接続状態</h1>';
+            mapping.innerHTML += '<span id="conn_state"></span>';
+            mapping.innerHTML += '<h1>未処理バッファ</h1>';
+            mapping.innerHTML += '<span id="buffer"></span>';
+            let save = '';
+            for (let b of btn_map) {
+                save += b.sel.selectedIndex.toString(36);
+            }
+            for (let a of ax_map) {
+                save += a.sel.selectedIndex.toString(36);
+            }
+            for (let a of ax_map) {
+                save += a.rev.checked ? 1 : 0;
+            }
+            localStorage.setItem(G.id, save);
+
+            ws = new WebSocket("ws://" + location.host + "/pipe");
+            timer && clearInterval(timer);
+
+            btn_states = Array(buttons.length).fill(false);
+            for (var b of btn_map) {
+                let i = b.sel.selectedIndex;
+                if (i < buttons.length) btn_states[i] = b.idx * 1;
+            }
+            axis_states = Array(axes.length).fill(false);
+            for (var a of ax_map) {
+                let i = a.sel.selectedIndex;
+                let dir = a.rev.checked ? -1 : 1;
+                if (i < axes.length) axis_states[i] = {idx: a.idx, dir};
+                if (i == axes.length) {
+                    btn_states[buttons.indexOf('Down')] = {idx: a.idx, dir};
+                    btn_states[buttons.indexOf('Up')] = {idx: a.idx, dir: -dir};
+                }
+                if (i == axes.length + 1) {
+                    btn_states[buttons.indexOf('Right')] = {idx: a.idx, dir};
+                    btn_states[buttons.indexOf('Left')] = {idx: a.idx, dir: -dir};
+                }
+
+            }
+            timer = setInterval(sendState, 15);
+        }
+    </script>
+</head>
+<body>
+<div id="pre_connect">
+    <h1>1. コントローラーをPCと接続してください</h1>
+    <h2>接続方法</h2>
+    <ul>
+        <li><a target="_blank"
+               href="https://search.yahoo.co.jp/search?p=switch+%E3%83%97%E3%83%AD%E3%82%B3%E3%83%B3+pc+%E6%8E%A5%E7%B6%9A">Switch
+            Controller</a></li>
+        <li><a target="_blank"
+               href="https://search.yahoo.co.jp/search?p=switch+%E3%83%97%E3%83%AD%E3%82%B3%E3%83%B3+pc+%E6%8E%A5%E7%B6%9A">Switch
+            Pro-Controller</a></li>
+        <li><a target="_blank"
+               href="https://search.yahoo.co.jp/search?p=ps4+%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%A9%E3%83%BC+pc+%E6%8E%A5%E7%B6%9A">PlasyStation4
+            DualShock4</a></li>
+        <li><a href="keyboard.html"> キーボード＆マウス</a></li>
+        <li><a href="tap.html">画面タップ</a></li>
+    </ul>
+
+    <h1>2. なにかのボタンを押してください</h1>
+</div>
+<div id="mapping">
+</div>
+</body>
+</html>

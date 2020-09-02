@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        let ok = 0;
+        let ng = 0;
+
+        function f() {
+            fetch('/').then(e => e.text()).then(e => {
+                msg.innerText += new Date() + ' OK\n';
+                ++ok;
+            }).catch(e => {
+                msg.innerText += new Date() + ' NG\n';
+                ++ng;
+            }).finally(e => {
+                stat.innerText = ok + '/' + (ok + ng);
+            });
+        }
+
+        setInterval(f, 10000);
+    </script>
+</head>
+<body>
+<div id="stat"></div>
+<div id="msg"></div>
+</body>
+</html>
