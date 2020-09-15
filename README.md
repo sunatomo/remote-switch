@@ -9,7 +9,7 @@
 コントローラー --> PC/スマホ --> インターネット --> joycontrolマシーン --> Bluetooth --> Switch 
 ```
 
-※ このシステムはコントローラ入力のみなので、映像のシェアはYoutubeやZoomなどで要対応<br>
+※ このシステムはコントローラ入力のみなので、映像のシェアはLine LiveやZoomなどで要対応<br>
 ※ オンライン側はスマホ一台だけだと画面が見れない
 
 ## 準備するもの
@@ -39,9 +39,11 @@
 
 ### ローカル側
 
+1. コントローラーコードを決めて、オンライン側に共有する<br>今回は`qwerty`を例とする
+
 1. このレポジトリの`app.py`を起動
 ```
-sudo python3 app.py 0
+sudo python3 app.py 0　qwerty
 ```
 
 2. ↓のメッセージがでたら、Switchで [持ちかた/順番を変える](https://www.nintendo.co.jp/support/switch/controller/index.html) 画面を開いて接続されるのを待つ
@@ -51,8 +53,10 @@ Waiting for Switch to connect... Please open the "Change Grip/Order" menu
 
 ### オンライン側
 
-1. コントローラを PC or スマホに接続
 1. ブラウザでラズパイの5000にアクセス
+1. コントローラーコードを入力
+1. コントローラを PC or スマホに接続
+
 
 ### (応用) 複数コントローラ接続
 

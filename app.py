@@ -11,6 +11,8 @@ from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
 
 DEVICE = int(sys.argv[1])
+CODE = sys.argv[2]
+
 app = Flask(__name__)
 
 buttons = [
@@ -52,7 +54,7 @@ def sitckAmount(d):
     return a
 
 
-@app.route('/pipe')
+@app.route('/pipe_' + CODE)
 def pipe():
     if request.environ.get('wsgi.websocket'):
         ws = request.environ['wsgi.websocket']

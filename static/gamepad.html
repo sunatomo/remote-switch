@@ -29,6 +29,7 @@
             top: 0px;
             left: 0px;
         }
+
     </style>
     <script>
         buttons = [
@@ -105,9 +106,15 @@
         }
 
         function changeGamepad(idx) {
+            if (!ctrl_code.value) {
+                alert('コードが空のままコントローラーを検出しました。\nコードを入力してください');
+                setTimeout(changeGamepad, 10000, 0);
+                return;
+            }
+            localStorage.ID = ctrl_code.value;
             pre_connect && pre_connect.remove();
             pre_connect = false;
-            mapping.innerHTML = '選択中のコントローラー<select id="game_pads"></select><h1>3. マッピングを設定してください</h1><h3>ボタンマッピング</h3>';
+            mapping.innerHTML = '選択中のコントローラー<select id="game_pads"></select><h1>4. マッピングを設定してください</h1><h3>ボタンマッピング</h3>';
             for (let p of navigator.getGamepads()) {
                 if (p) game_pads.innerHTML += '<option>' + p.id + '</option>';
             }
@@ -118,7 +125,7 @@
             target && target.remove();
             target = document.createElement('div');
             target.className = 'target';
-            target.innerHTML = '4. カーソルを合わせてAを押してください';
+            target.innerHTML = '5. カーソルを合わせてAを押してください';
             mapping.append(target);
             cursol && cursol.remove();
             cursol = document.createElement('div');
@@ -270,7 +277,7 @@
             mapping.innerHTML += '<h1>接続状態</h1>';
             mapping.innerHTML += '<span id="conn_state"></span>';
             mapping.innerHTML += '<h1>未処理バッファ</h1>';
-            mapping.innerHTML += '<span id="buffer"></span>';
+            mapping.innerHTML += '<div id="buffer"></div>';
             let save = '';
             for (let b of btn_map) {
                 save += b.sel.selectedIndex.toString(36);
@@ -283,7 +290,7 @@
             }
             localStorage.setItem(G.id, save);
 
-            ws = new WebSocket("ws://" + location.host + "/pipe");
+            ws = new WebSocket("ws://" + location.host + "/pipe_" + localStorage.ID);
             timer && clearInterval(timer);
 
             btn_states = Array(buttons.length).fill(false);
@@ -308,11 +315,14 @@
             }
             timer = setInterval(sendState, 15);
         }
+
     </script>
 </head>
 <body>
 <div id="pre_connect">
-    <h1>1. コントローラーをPCと接続してください</h1>
+    <h1>1. 渡されたコントローラーコードを入力してください</h1>
+    <input id="ctrl_code"/>
+    <h1>2. コントローラーをPCと接続してください</h1>
     <h2>接続方法</h2>
     <ul>
         <li><a target="_blank"
@@ -324,13 +334,17 @@
         <li><a target="_blank"
                href="https://search.yahoo.co.jp/search?p=ps4+%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%A9%E3%83%BC+pc+%E6%8E%A5%E7%B6%9A">PlasyStation4
             DualShock4</a></li>
-        <li><a href="keyboard.html"> キーボード＆マウス</a></li>
-        <li><a href="tap.html">画面タップ</a></li>
+        <li><a href="keyboard.html" onclick="localStorage.ID = ctrl_code.value"> キーボード＆マウス</a></li>
+        <li><a href="tap.html" onclick="localStorage.ID = ctrl_code.value">画面タップ</a></li>
     </ul>
 
-    <h1>2. なにかのボタンを押してください</h1>
+    <h1>3. なにかのボタンを押してください</h1>
 </div>
 <div id="mapping">
 </div>
 </body>
+<script>
+    if (localStorage.ID) ctrl_code.value = localStorage.ID;
+
+</script>
 </html>

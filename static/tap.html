@@ -98,8 +98,12 @@
             'R-Horizon',
             'R-Vertical'
         ];
+        if (!localStorage.ID) {
+            alert('コントローラーコードを入力してください');
+            location.href = 'gamepad.html';
+        }
 
-        let ws = new WebSocket("ws://" + location.host + "/pipe");
+        let ws = new WebSocket("ws://" + location.host + "/pipe_" + localStorage.ID);
         setInterval(function () {
             if (ws.readyState == 3) {
                 caution.style.display = '';
