@@ -29,9 +29,11 @@
             top: 0px;
             left: 0px;
         }
-
     </style>
+    <script src="./NoSleep.min.js"></script>
     <script>
+        var noSleep = new NoSleep();
+
         buttons = [
             'B',
             'A',
@@ -235,7 +237,6 @@
             changeGamepad(e.gamepad.index);
         });
 
-
         let btn_states = [];
         let axis_states = [];
         let ws = null;
@@ -315,7 +316,6 @@
             }
             timer = setInterval(sendState, 15);
         }
-
     </script>
 </head>
 <body>
@@ -342,9 +342,13 @@
 </div>
 <div id="mapping">
 </div>
+<div id="footer">タップかクリックしてスリープ回避</div>
 </body>
 <script>
     if (localStorage.ID) ctrl_code.value = localStorage.ID;
-
+    footer.addEventListener('click', function() {
+      noSleep.enable();
+      footer.remove();
+    });
 </script>
 </html>
