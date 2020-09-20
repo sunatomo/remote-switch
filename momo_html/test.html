@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="shortcut icon" href="#">
+    <title>Momo P2P</title>
+    <style>
+        html::-webkit-scrollbar {
+    display: none;
+}
+    </style>
+</head>
+<body style="margin: 0;">
+<video id="remote_video" playsinline autoplay style="transform:scaleY(0.75);transform-origin: 0px 0px;"></video>
+<div>
+    <select id="codec">
+        <option value="VP9">VP9</option>
+        <option value="VP8">VP8</option>
+        <option value="H264">H264</option>
+    </select>
+    <input type="button" onclick="connect();" value="Connect" id="btn_connect">
+    <input type="button" onclick="disconnect();" value="Disconnect">
+    <div>Connectを押してください。</div>
+</div>
+<script type='text/javascript' src='./webrtc.js'></script>
+</body>
+</html>

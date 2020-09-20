@@ -5,12 +5,15 @@
 
 ## 動作原理
 
-```
-コントローラー --> PC/スマホ --> インターネット --> joycontrolマシーン --> Bluetooth --> Switch 
+```                                                                         
+入力ルート
+コントローラー --> ブラウザ --> インターネット --> joycontrolマシーン --> Bluetooth --> Switch
+
+出力ルート
+Switch --> momo(webrtc)マシーン -->  インターネット --> ブラウザ
 ```
 
-※ このシステムはコントローラ入力のみなので、映像のシェアはLine LiveやZoomなどで要対応<br>
-※ オンライン側はスマホ一台だけだと画面が見れない
+出力ルートは switchの画面を共有できれば何でもいいが、momoがベストだと思われ([調査結果](real-time-streaming.md))
 
 ## 準備するもの
 
@@ -18,6 +21,10 @@
   * Raspberry Pi
   * Ubuntu 
   * Ubuntu On VirtualBox  https://qiita.com/almtr/items/38a7f0c3056024532e8d
+  * etc...
+* momoをインストールできるマシーン
+  * Raspberry Pi
+  * Windows
   * etc...
 * Bluetoothアダプタ(内臓でもOK) 
 * ゲーム　ライブ配信環境
@@ -27,13 +34,22 @@
 
 ## セットアップ手順
 
+### 入力ルート※
 1. (デバイスに無ければ) Bluetoothアダプタ接続
     * `hciconfig` コマンドで `hci0` が出てくればOK
 1. [joycontrol](https://github.com/mart1nro/joycontrol) インストール
     * [Raspberry Pi 最新化](https://search.yahoo.co.jp/search?p=raspberry+pi+%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97)
 1. インターネットからアクセスできるよう5000番ポートを開放
-1. [ライブ配信環境設定](https://search.yahoo.co.jp/search?p=Switch+%E3%83%A9%E3%82%A4%E3%83%96%E9%85%8D%E4%BF%A1)
 1. このレポジトリをclone
+
+### 出力ルート※ 
+1. HDMIキャプチャ接続
+1. [momo](https://github.com/shiguredo/momo) インストール
+    * バイナリがあるのでダウンロードして解凍
+1. `test.html`と`webrtc.js`を置き換える（オプション）
+1. インターネットからアクセスできるよう8080番ポートを開放
+
+※それぞれ別のマシーンでもOK
 
 ## 接続手順
 
