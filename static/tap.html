@@ -117,15 +117,15 @@
             }
             data.push(btn);
             if (LeftStick.startTouch && LeftStick.moveTouch) {
-                data.push(LeftStick.moveTouch.clientY - LeftStick.startTouch.clientY);
-                data.push(LeftStick.startTouch.clientX - LeftStick.moveTouch.clientX);
+                data.push(LeftStick.moveTouch.clientY - LeftStick.startTouch.clientY >> 0);
+                data.push(LeftStick.startTouch.clientX - LeftStick.moveTouch.clientX >> 0);
             } else {
                 data.push(0);
                 data.push(0);
             }
             if (RightStick.startTouch && RightStick.moveTouch) {
-                data.push(RightStick.moveTouch.clientY - RightStick.startTouch.clientY);
-                data.push(RightStick.startTouch.clientX - RightStick.moveTouch.clientX);
+                data.push(RightStick.moveTouch.clientY - RightStick.startTouch.clientY >> 0);
+                data.push(RightStick.startTouch.clientX - RightStick.moveTouch.clientX >> 0);
             } else {
                 data.push(0);
                 data.push(0);
