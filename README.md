@@ -3,6 +3,16 @@
 [Death Squared](https://ec.nintendo.com/JP/ja/titles/70010000002104) 
 みたいなローカルしか対応してないSwitchのマルチプレイゲームをオンラインからプレイできるようにするシステム
 
+サンプル<br>
+https://www.youtube.com/watch?v=shvceLTOwho&feature=youtu.be
+
+つまり、[Steam Remote Play Together](https://store.steampowered.com/remoteplay_together?l=japanese)のswitch版
+<br>(ちなみにDeath Squaredはsteamの方が安い)
+
+このシステムはswitchとbluetooth接続しているが、USBで接続したい場合はこっち<br>
+[僕んちのNintendo Switchをネット越しで友人と共有してみよう！](https://note.com/neqlol/n/n7fa3f4dc2dca)
+
+
 ## 動作原理
 
 ```                                                                         
