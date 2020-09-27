@@ -74,6 +74,9 @@
         let target = null;
         let cursol = null;
 
+        function L(ja, en) {
+            return window.navigator.language == 'ja'? ja: en;
+        }
         function getState() {
             let bs = navigator.getGamepads()[index].buttons;
             for (var i in btn_map) {
@@ -115,14 +118,15 @@
 
         function changeGamepad(idx) {
             if (!ctrl_code.value) {
-                alert('コードが空のままコントローラーを検出しました。\nコードを入力してください');
+                alert(L('コードが空のままコントローラーを検出しました。\nコードを入力してください',
+                        'input Controller-Code'));
                 setTimeout(changeGamepad, 10000, 0);
                 return;
             }
             localStorage.ID = ctrl_code.value;
             pre_connect && pre_connect.remove();
             pre_connect = false;
-            mapping.innerHTML = '選択中のコントローラー<select id="game_pads"></select><h1>4. マッピングを設定してください</h1><h3>ボタンマッピング</h3>';
+            mapping.innerHTML = L('選択中のコントローラー', 'Select Controller') + '<select id="game_pads"></select><h1>4. ' + L('マッピングを設定してください' ,'Configure Mapping') + '</h1><h3>' + L('ボタンマッピング', 'Buttons') + '</h3>';
             for (let p of navigator.getGamepads()) {
                 if (p) game_pads.innerHTML += '<option>' + p.id + '</option>';
             }
@@ -133,7 +137,7 @@
             target && target.remove();
             target = document.createElement('div');
             target.className = 'target';
-            target.innerHTML = '5. カーソルを合わせてAを押してください';
+            target.innerHTML = L('5. 赤い四角を合わせてAを押してください', '5. Move red box to here, and push A');
             mapping.append(target);
             cursol && cursol.remove();
             cursol = document.createElement('div');
@@ -199,7 +203,7 @@
                 state.max = 1;
                 state.step = 0.01;
                 div.append(state);
-                div.append("反転")
+                div.append(L("反転", "reverse"));
                 var rev = document.createElement('input');
                 rev.type = 'checkbox';
                 div.append(rev);
@@ -213,7 +217,7 @@
             }
             var h3 = document.createElement('h3');
             h3.id = 'button_end';
-            h3.innerText = 'スティックの設定';
+            h3.innerText = L('スティックの設定', 'Sticks');
             mapping.append(h3);
             ax_map = [];
             for (var i in G.axes) {
@@ -248,7 +252,7 @@
         let ws = null;
 
         function sendState() {
-            conn_state.innerHTML = ['接続中', '通信中', '切断中', '切断'][ws.readyState];
+            conn_state.innerHTML = L(['接続中', '通信中', '切断中', '切断'], ['Connecting', 'Connected', 'Disconnecting', 'Closed'])[ws.readyState];
             buffer.innerHTML = ws.bufferedAmount;
             if (ws.readyState == 3 || ws.bufferedAmount) {
                 return;
@@ -280,11 +284,11 @@
 
         function startSession() {
             mapping.innerHTML += '<iframe frameborder="0" src="http://' + location.hostname + ':8080/html/test.html" />';
-            mapping.innerHTML += '<h1>コントローラー</h1>';
+            mapping.innerHTML += L('<h1>コントローラー</h1>','<h1>Cotroller</h1>');
             mapping.innerHTML += G.id;
-            mapping.innerHTML += '<h1>接続状態</h1>';
+            mapping.innerHTML += L('<h1>接続状態</h1>', '<h1>Connection status</h1>');
             mapping.innerHTML += '<span id="conn_state"></span>';
-            mapping.innerHTML += '<h1>未処理バッファ</h1>';
+            mapping.innerHTML += L('<h1>未処理バッファ</h1>', '<h1>buffered data</h1>');
             mapping.innerHTML += '<div id="buffer"></div>';
             let save = '';
             for (let b of btn_map) {
@@ -327,10 +331,10 @@
 </head>
 <body>
 <div id="pre_connect">
-    <h1>1. 渡されたコントローラーコードを入力してください</h1>
+    <h1 id=H1></h1>
     <input id="ctrl_code"/>
-    <h1>2. コントローラーをPCと接続してください</h1>
-    <h2>接続方法</h2>
+    <h1 id=H2></h1>
+    <h2 id=H3></h2>
     <ul>
         <li><a target="_blank"
                href="https://search.yahoo.co.jp/search?p=switch+%E3%83%97%E3%83%AD%E3%82%B3%E3%83%B3+pc+%E6%8E%A5%E7%B6%9A">Switch
@@ -341,17 +345,24 @@
         <li><a target="_blank"
                href="https://search.yahoo.co.jp/search?p=ps4+%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%A9%E3%83%BC+pc+%E6%8E%A5%E7%B6%9A">PlasyStation4
             DualShock4</a></li>
-        <li><a href="keyboard.html" onclick="localStorage.ID = ctrl_code.value"> キーボード＆マウス</a></li>
-        <li><a href="tap.html" onclick="localStorage.ID = ctrl_code.value">画面タップ</a></li>
+        <li><a href="keyboard.html" onclick="localStorage.ID = ctrl_code.value" id="H5"></a></li>
+        <li><a href="tap.html" onclick="localStorage.ID = ctrl_code.value" id="H6"></a></li>
     </ul>
 
-    <h1>3. なにかのボタンを押してください</h1>
+    <h1 id=H4></h1>
 </div>
 <div id="mapping">
 </div>
-<div id="footer">タップかクリックしてスリープ回避</div>
+<div id="footer"></div>
 </body>
 <script>
+    H1.innerText = L('1. 渡されたコントローラーコードを入力してください', '1. Input controller-code shared by host');
+    H2.innerText = L('2. コントローラーをPCと接続してください', '2. Connect controller to your PC/Phone');
+    H3.innerText = L('接続方法', 'How to connect');
+    H4.innerText = L('3. なにかのボタンを押してください', '3. Push some button');
+    H5.innerText = L('キーボード＆マウス', 'Pseudo controller (Keyboard&Mouse)');
+    H6.innerText = L('画面タップ', 'Pseudo controller (Screen Tap)');
+    footer.innerText = L('タップかクリックしてスリープ回避', 'Please tap here to prevent your phone sleeping');
     if (localStorage.ID) ctrl_code.value = localStorage.ID;
     footer.addEventListener('click', function() {
       noSleep.enable();
