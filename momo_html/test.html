@@ -6,8 +6,8 @@
     <title>Momo P2P</title>
     <style>
         html::-webkit-scrollbar {
-    display: none;
-}
+            display: none;
+        }
     </style>
 </head>
 <body style="margin: 0;">
@@ -23,5 +23,12 @@
     <div>Push Connect button</div>
 </div>
 <script type='text/javascript' src='./webrtc.js'></script>
+<script>
+    onresize = e=> {
+        window.parent && window.parent.postMessage(document.body.scrollHeight,'*');
+    };
+    onresize();
+    setInterval(onresize, 1000);
+</script>
 </body>
 </html>

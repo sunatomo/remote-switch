@@ -71,35 +71,10 @@
             padding: 20px;
         }
     </style>
+    <script src="lib.js"></script>
     <script>
-        buttons = [
-            'B',
-            'A',
-            'Y',
-            'X',
-            'L',
-            'R',
-            'ZL',
-            'ZR',
-            '-',
-            '+',
-            'L-Stick',
-            'R-Stick',
-            'Up',
-            'Down',
-            'Left',
-            'Right',
-            'Home',
-            'Capture'
-        ];
-        axes = [
-            'L-Horizon',
-            'L-Vertical',
-            'R-Horizon',
-            'R-Vertical'
-        ];
         if (!localStorage.ID) {
-            alert('コントローラーコードを入力してください');
+            alert(L('コントローラーコードを入力してください', 'input Controller-Code'));
             location.href = 'gamepad.html';
         }
 

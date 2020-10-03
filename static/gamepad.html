@@ -37,35 +37,9 @@
 
     </style>
     <script src="./NoSleep.min.js"></script>
+    <script src="lib.js"></script>
     <script>
         var noSleep = new NoSleep();
-
-        buttons = [
-            'B',
-            'A',
-            'Y',
-            'X',
-            'L',
-            'R',
-            'ZL',
-            'ZR',
-            '-',
-            '+',
-            'L-Stick',
-            'R-Stick',
-            'Up',
-            'Down',
-            'Left',
-            'Right',
-            'Home',
-            'Capture'
-        ];
-        axes = [
-            'L-Horizon',
-            'L-Vertical',
-            'R-Horizon',
-            'R-Vertical'
-        ];
 
         let index = 0;
         let btn_map = [];
@@ -74,9 +48,6 @@
         let target = null;
         let cursol = null;
 
-        function L(ja, en) {
-            return window.navigator.language == 'ja'? ja: en;
-        }
         function getState() {
             let bs = navigator.getGamepads()[index].buttons;
             for (var i in btn_map) {
@@ -360,7 +331,7 @@
     H2.innerText = L('2. コントローラーをPCと接続してください', '2. Connect controller to your PC/Phone');
     H3.innerText = L('接続方法', 'How to connect');
     H4.innerText = L('3. なにかのボタンを押してください', '3. Push some button');
-    H5.innerText = L('キーボード＆マウス', 'Pseudo controller (Keyboard&Mouse)');
+    H5.innerText = L('キーボード', 'Pseudo controller (Keyboard)');
     H6.innerText = L('画面タップ', 'Pseudo controller (Screen Tap)');
     footer.innerText = L('タップかクリックしてスリープ回避', 'Please tap here to prevent your phone sleeping');
     if (localStorage.ID) ctrl_code.value = localStorage.ID;

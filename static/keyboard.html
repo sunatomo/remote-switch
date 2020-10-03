@@ -1,0 +1,162 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        div button {
+            display: block;
+            margin-bottom: 3px;
+        }
+        #caution {
+            border-radius: 10px;
+            position: absolute;
+            top: 37%;
+            left: 18%;
+            background-color: lightpink;
+            text-align: center;
+            font-size: 30px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<iframe frameborder="0" id="gamen" src="/" width="100%"></iframe>
+<div id="caution" style="display: none">接続が切れました<br>リロードしてください</div>
+<div id="msg"></div>
+<div>
+    <div id="btn" style="float: left;"></div>
+    <div id="stick"></div>
+</div>
+<p style="clear:both">
+    <input id="sv_name" value="autosave">
+    <button onclick="save()">save</button>
+    <select id="ld_name"></select>
+    <button onclick="load()">load</button>
+</p>
+<script src="lib.js"></script>
+<script>
+    onmessage = e=> {
+        gamen.height=e.data + 'px';
+    }
+    config = localStorage.kbcfg ? JSON.parse(localStorage.kbcfg): {};
+    key_map = config.autosave || {};
+    for(let k in config) {
+        ld_name.innerHTML += '<option>' + k + '</option>';
+    }
+    if (!localStorage.ID) {
+        alert(L('コントローラーコードを入力してください', 'input Controller-Code'));
+        location.href = 'gamepad.html';
+    }
+    let setting_button = null;
+    function setKey(e) {
+        console.info(e.target.innerText);
+        setting_button = e.target;
+        setting_button.innerText = setting_button.button + L(' (キーを押してください)', ' (press key)');
+    }
+    function makeButton() {
+        btn.innerHTML = '';
+        for(let b of buttons) {
+            let k = document.createElement('button');
+            k.innerText = b + ' (' + key_map[b] + ')';
+            k.button = b;
+            k.onclick = setKey;
+            btn.append(k);
+        }
+        stick.innerHTML = '';
+        for(let a of axes) {
+            let k = document.createElement('button');
+            let b = a + '+';
+            k.innerText = b + ' (' + key_map[b] + ')';
+            k.button = b;
+            k.onclick = setKey;
+            stick.append(k);
+            k = document.createElement('button');
+            b = a + '-';
+            k.innerText = b + ' (' + key_map[b] + ')';
+            k.button = b;
+            k.onclick = setKey;
+            stick.append(k);
+        }
+    }
+    makeButton();
+    msg.innerText = L('ボタンを押してキーを押して設定してください', 'select button, then push any key');
+
+    gamen.contentWindow.location.replace('http://' + location.hostname + ':8080/html/test.html');
+
+    let button_state = Array(buttons.length).fill(0);
+    let axis_state = Array(axes.length).fill(0);
+    document.body.onkeydown = e=> {
+        if (e.target == sv_name) return;
+        e.preventDefault();
+        if (setting_button) {
+            setting_button.innerText = setting_button.button + ' (' + e.code + ')';
+            setting_button.code = e.code;
+            key_map[setting_button.button] = e.code;
+            if (sv_name.value == 'autosave') {
+                config.autosave = {...key_map};
+                localStorage.kbcfg = JSON.stringify(config);
+            }
+            setting_button = null;
+        } else {
+            for(let i in buttons) {
+                if (e.code ==  key_map[buttons[i]]) {
+                    button_state[i] = 1;
+                }
+            }
+            for(let i in axis_state) {
+                if (e.code ==  key_map[axes[i] + '+']) {
+                    axis_state[i] = 100;
+                }
+                if (e.code ==  key_map[axes[i] + '-']) {
+                    axis_state[i] = -100;
+                }
+            }
+        }
+    };
+    document.body.onkeyup = e=> {
+        if (e.target == sv_name) return;
+        e.preventDefault();
+        for(let i in buttons) {
+            if (e.code ==  key_map[buttons[i]]) {
+                button_state[i] = 0;
+            }
+        }
+        for(let i in axis_state) {
+            if (e.code ==  key_map[axes[i] + '+']) {
+                axis_state[i] = 0;
+            }
+            if (e.code ==  key_map[axes[i] + '-']) {
+                axis_state[i] = 0;
+            }
+        }
+    };
+
+    function save() {
+        config[sv_name.value] = {...key_map};
+        localStorage.kbcfg = JSON.stringify(config);
+    }
+
+    function load() {
+        sv_name.value = ld_name.value;
+        key_map = {...config[ld_name.value]};
+        makeButton();
+    }
+
+    let ws = new WebSocket("ws://" + location.host + "/pipe_" + localStorage.ID);
+    setInterval(function () {
+        if (ws.readyState == 3) {
+            caution.style.display = '';
+        }
+        let data = [];
+        let btn = 0;
+        for (let s of button_state) {
+            btn <<= 1;
+            btn |= s;
+        }
+        data.push(btn);
+        for (let s of axis_state) {
+            data.push(s);
+        }
+        ws.send(data.join(','));
+    }, 15);
+</script>
+</body>
